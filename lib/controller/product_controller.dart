@@ -1,38 +1,21 @@
-// lib/controllers/product_controller.dart
+// lib/controller/product_controller.dart
 
-import 'package:e_commerceflutter/model/product.dart';
-import 'package:e_commerceflutter/services/product_service.dart';
+import 'dart:async';
+import '../model/product.dart';
+import '../services/product_service.dart';
 
 class ProductController {
+  // Supposons que votre ProductService est initialisé ici
   final ProductService _service = ProductService();
 
-  /// Stream de tous les produits (mise à jour en temps réel)
+  // ✅ CORRECTION : Définissez la méthode 'productsStream' exactement comme elle est appelée dans la vue
   Stream<List<Product>> getProductsStream() {
-    return _service.getProductsStream();
+    // Cette méthode appelle la méthode correspondante dans le ProductService
+    return _service.getProductsStream(); 
   }
-
-  /// Récupérer tous les produits une seule fois
-  Future<List<Product>> fetchAll() {
-    return _service.getProducts();
-  }
-
-  /// Ajouter un produit dans Firestore
-  Future<void> add(Product product) {
-    return _service.addProduct(product);
-  }
-
-  /// Modifier un produit existant
-  Future<void> update(Product product) {
-    return _service.updateProduct(product);
-  }
-
-  /// Supprimer un produit par ID
-  Future<void> delete(String id) {
-    return _service.deleteProduct(id);
-  }
-
-  /// Récupérer un produit avec son ID
-  Future<Product?> getById(String id) {
-    return _service.getProductById(id);
+  
+  // (Laissez les autres méthodes ici : getProducts, getProductById, etc.)
+  Future<List<Product>> getProducts() {
+    return _service.getProducts(); 
   }
 }

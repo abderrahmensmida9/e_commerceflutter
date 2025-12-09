@@ -138,7 +138,7 @@ class _HomeViewState extends State<HomeView> {
             // ▬▬▬▬▬▬▬▬▬▬ LISTE DES PRODUITS ▬▬▬▬▬▬▬▬▬▬▬
             Expanded(
               child: StreamBuilder<List<Product>>(
-                stream: _controller.productsStream(),
+                stream: _controller.getProductsStream(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Center(child: CircularProgressIndicator());
