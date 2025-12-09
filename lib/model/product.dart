@@ -1,42 +1,43 @@
-// lib/model/product.dart
 
 class Product {
   final String id;
   final String name;
-  final String description;
+  final String category;
   final double price;
   final String imageUrl;
-  final String category; // ✅ category est bien là
+  final String description;
 
   Product({
     required this.id,
     required this.name,
-    required this.description,
+    required this.category,
     required this.price,
     required this.imageUrl,
-    required this.category,
+    required this.description,
   });
 
-  /// Convert Firestore → Product (Utilisé pour récupérer les données)
-  factory Product.fromMap(String id, Map<String, dynamic> map) { // ✅ Cette méthode doit exister
+  // ⭐️ METHODE REQUISE PAR FIREBASE (ProductService) : Convertit Map -> Product
+  factory Product.fromMap(String id, Map<String, dynamic> map) {
     return Product(
-      id: id,
-      name: map['name'] ?? '',
-      description: map['description'] ?? '',
-      price: (map['price'] ?? 0).toDouble(),
-      imageUrl: map['image'] ?? '',
-      category: map['category'] ?? '',
+      id: id, // L'ID Firestore est passé séparément
+      name: map['name'] as String,
+      category: map['category'] as String,
+      // Firestore stocke souvent les nombres comme int ou double. On assure le double ici.
+      price: (map['price'] as num).toDouble(), 
+      imageUrl: map['imageUrl'] as String,
+      description: map['description'] as String,
     );
   }
 
-  /// Convert Product → Firestore (Utilisé pour sauvegarder les données)
-  Map<String, dynamic> toMap() { // ✅ Cette méthode doit exister
+  // ⭐️ METHODE REQUISE PAR FIREBASE (ProductService) : Convertit Product -> Map
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'description': description,
-      'price': price,
-      'image': imageUrl,
       'category': category,
+      'price': price,
+      'imageUrl': imageUrl,
+      'description': description,
     };
+    
   }
 }

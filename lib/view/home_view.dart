@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:e_commerceflutter/controller/product_controller.dart';
 import 'package:e_commerceflutter/model/product.dart';
 import 'product_detail_view.dart';
+// ⚠️ ASSUREZ-VOUS D'IMPORTER LA PAGE DU PANIER QUE NOUS VENONS DE CRÉER
+import 'cart_view.dart'; 
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -51,18 +53,20 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.menu, color: Colors.white, size: 26),
+                      const Icon(Icons.menu, color: Colors.white, size: 26),
                       const SizedBox(width: 12),
-                      Text("SUP4 DEV",
+                      const Text("SUP4 DEV",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                       const Spacer(),
-                      Icon(Icons.shopping_cart_outlined,
-                          color: Colors.white),
+
+                      // ⭐️ NOUVEAU : Icône du panier dynamique
+                      _buildCartIconWithBadge(context), 
+                      
                       const SizedBox(width: 12),
-                      Icon(Icons.notifications_outlined,
+                      const Icon(Icons.notifications_outlined,
                           color: Colors.white),
                     ],
                   ),
@@ -141,7 +145,7 @@ class _HomeViewState extends State<HomeView> {
                 stream: _controller.getProductsStream(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   List<Product> products = snapshot.data!;
@@ -178,6 +182,65 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  // ⭐️ NOUVELLE MÉTHODE : Widget pour le badge du panier et navigation
+  Widget _buildCartIconWithBadge(BuildContext context) {
+    return StreamBuilder<List<Product>>(
+      // Écouter le stream du panier
+      stream: _controller.cartStream,
+      initialData: const [], 
+      builder: (context, snapshot) {
+        final itemCount = snapshot.data?.length ?? 0;
+        
+        return GestureDetector(
+          onTap: () {
+            // ✅ Navigation vers la CartView au clic sur l'icône
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (_) => CartView())
+            );
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Icon(Icons.shopping_cart_outlined,
+                  color: Colors.white),
+
+              // Afficher le badge uniquement si des articles sont présents
+              if (itemCount > 0)
+                Positioned(
+                  right: -10,
+                  top: -10,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white, width: 1.5)
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 18,
+                      minHeight: 18,
+                    ),
+                    child: Center(
+                      child: Text(
+                        itemCount > 99 ? '99+' : itemCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
   // ▬▬▬▬▬▬▬▬▬▬ CARD PRODUIT ▬▬▬▬▬▬▬▬▬▬▬
   Widget _buildProductCard(BuildContext context, Product p) {
     return GestureDetector(
@@ -188,7 +251,7 @@ class _HomeViewState extends State<HomeView> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 6,
@@ -240,14 +303,23 @@ class _HomeViewState extends State<HomeView> {
                 height: 36,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: const Color(0xFF6A4DFD), // Couleur de l'en-tête
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   icon: const Icon(Icons.shopping_cart_outlined, size: 18),
                   label: const Text("Ajouter"),
-                  onPressed: () {},
+                  onPressed: () {
+                    // ✅ Logique d'ajout au panier (via le contrôleur)
+                    _controller.addToCart(p);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("${p.name} ajouté au panier !"),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
                 ),
               ),
             )
